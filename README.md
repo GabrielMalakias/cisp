@@ -1,2 +1,2 @@
-# cisp
-A programming language guided by http://www.buildyourownlisp.com/
+# CISP
+A programming language written guided by [Build your own lisp](http://www.buildyourownlisp.com/)
