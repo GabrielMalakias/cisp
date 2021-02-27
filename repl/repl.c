@@ -27,7 +27,7 @@ static char* version = "0.0.0";
 
 int main(int argc, char** argv) {
   mpc_parser_t* Number     = mpc_new("number");
-  mpc_parser_t* StringAb   = mpc_new("string_ab");
+  mpc_parser_t* String     = mpc_new("string");
   mpc_parser_t* Operator   = mpc_new("operator");
   mpc_parser_t* Expr       = mpc_new("expr");
   mpc_parser_t* Cisp       = mpc_new("cisp");
@@ -35,12 +35,12 @@ int main(int argc, char** argv) {
   mpca_lang(MPCA_LANG_DEFAULT,
       "                                                                        \
         number      : /-?[0-9]+/ ;                                             \
-        string_ab   : /[a-b]+/;                                                \
+        string      : /\"[a-z]+\"/;                                            \
         operator    : '+' | '-' | '*' | '/';                                   \
-        expr        : <string_ab> | <number> | '(' <operator> <expr>+ ')';     \
+        expr        : <string> | <number> | '(' <operator> <expr>+ ')';        \
         cisp        : /^/ <operator> <expr>+ /$/ ;                             \
       ",
-      Number, StringAb, Operator, Expr, Cisp);
+      Number, String, Operator, Expr, Cisp);
 
   printf("Cisp version %s\n", version);
   puts("Press Ctrl+c to Exit\n");
@@ -62,6 +62,6 @@ int main(int argc, char** argv) {
     free(input);
   }
 
-  mpc_cleanup(5, Number, StringAb, Operator, Expr, Cisp);
+  mpc_cleanup(5, Number, String, Operator, Expr, Cisp);
   return 0;
 }
