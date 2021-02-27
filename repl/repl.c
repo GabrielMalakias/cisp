@@ -26,21 +26,23 @@ static char* version = "0.0.0";
 /*  Loops waiting for the input */
 
 int main(int argc, char** argv) {
-  mpc_parser_t* Number     = mpc_new("number");
+  mpc_parser_t* Integer    = mpc_new("integer");
+  mpc_parser_t* Decimal    = mpc_new("decimal");
   mpc_parser_t* String     = mpc_new("string");
   mpc_parser_t* Operator   = mpc_new("operator");
   mpc_parser_t* Expr       = mpc_new("expr");
   mpc_parser_t* Cisp       = mpc_new("cisp");
 
   mpca_lang(MPCA_LANG_DEFAULT,
-      "                                                                        \
-        number      : /-?[0-9]+/ ;                                             \
-        string      : /\"[a-z]+\"/;                                            \
-        operator    : '+' | '-' | '*' | '/' | '%';                             \
-        expr        : <string> | <number> | '(' <operator> <expr>+ ')';        \
-        cisp        : /^/ <operator> <expr>+ /$/ ;                             \
+      "                                                                                    \
+        integer     : /-?[0-9]+/;                                                          \
+        decimal     : /-?[0-9]+.[0-9]+/;                                                 \
+        string      : /\"[a-z]+\"/;                                                        \
+        operator    : '+' | '-' | '*' | '/' | '%';                                         \
+        expr        : <string> | <decimal> | <integer> | '(' <operator> <expr>+ ')';        \
+        cisp        : /^/ <operator> <expr>+ /$/;                                          \
       ",
-      Number, String, Operator, Expr, Cisp);
+      Integer, Decimal, String, Operator, Expr, Cisp);
 
   printf("Cisp version %s\n", version);
   puts("Press Ctrl+c to Exit\n");
@@ -62,6 +64,6 @@ int main(int argc, char** argv) {
     free(input);
   }
 
-  mpc_cleanup(5, Number, String, Operator, Expr, Cisp);
+  mpc_cleanup(6, Integer, Decimal, String, Operator, Expr, Cisp);
   return 0;
 }
