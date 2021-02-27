@@ -25,24 +25,58 @@ static char* version = "0.0.0";
 
 /*  Loops waiting for the input */
 
+int number_of_nodes(mpc_ast_t* ast) {
+  if (ast->children_num == 0) {
+    return 1;
+  } else {
+    int total = 1;
+    for(int i = 0; i < ast->children_num; i++) {
+      total = total + number_of_nodes(ast->children[i]);
+    }
+    return total;
+  }
+}
+
+long eval_op(long x, char* operator, long y) {
+  if (strcmp(operator, "+") == 0) { return x + y; }
+  if (strcmp(operator, "-") == 0) { return x - y; }
+  if (strcmp(operator, "*") == 0) { return x * y; }
+  if (strcmp(operator, "/") == 0) { return x / y; }
+  return 0;
+}
+
+long eval(mpc_ast_t* ast) {
+  if (strstr(ast->tag, "number")) {
+    return atoi(ast->contents);
+  }
+
+  char* operator = ast->children[1]->contents;
+
+  long result = eval(ast->children[2]);
+
+  int index = 3;
+  while(strstr(ast->children[index]->tag, "expr")) {
+    result = eval_op(result, operator, eval(ast->children[index]));
+    index++;
+  }
+
+  return result;
+}
+
 int main(int argc, char** argv) {
-  mpc_parser_t* Integer    = mpc_new("integer");
-  mpc_parser_t* Decimal    = mpc_new("decimal");
-  mpc_parser_t* String     = mpc_new("string");
+  mpc_parser_t* Number     = mpc_new("number");
   mpc_parser_t* Operator   = mpc_new("operator");
   mpc_parser_t* Expr       = mpc_new("expr");
   mpc_parser_t* Cisp       = mpc_new("cisp");
 
   mpca_lang(MPCA_LANG_DEFAULT,
       "                                                                                    \
-        integer     : /-?[0-9]+/;                                                          \
-        decimal     : /-?[0-9]+.[0-9]+/;                                                 \
-        string      : /\"[a-z]+\"/;                                                        \
-        operator    : '+' | '-' | '*' | '/' | '%';                                         \
-        expr        : <string> | <decimal> | <integer> | '(' <operator> <expr>+ ')';        \
-        cisp        : /^/ <operator> <expr>+ /$/;                                          \
+        number      : /-?[0-9]+/ ;                                                          \
+        operator    : '+' | '-' | '*' | '/' ;                                               \
+        expr        : <number> | '(' <operator> <expr>+ ')' ;        \
+        cisp        : /^/ <operator> <expr>+ /$/ ;                                          \
       ",
-      Integer, Decimal, String, Operator, Expr, Cisp);
+      Number, Operator, Expr, Cisp);
 
   printf("Cisp version %s\n", version);
   puts("Press Ctrl+c to Exit\n");
@@ -54,7 +88,8 @@ int main(int argc, char** argv) {
 
     mpc_result_t result;
     if(mpc_parse("<stdin>", input, Cisp, &result)) {
-      mpc_ast_print(result.output);
+      printf("= %li\n", eval(result.output));
+
       mpc_ast_delete(result.output);
     } else {
       mpc_err_print(result.error);
@@ -64,6 +99,6 @@ int main(int argc, char** argv) {
     free(input);
   }
 
-  mpc_cleanup(6, Integer, Decimal, String, Operator, Expr, Cisp);
+  mpc_cleanup(5, Number, Operator, Expr, Cisp);
   return 0;
 }
