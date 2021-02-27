@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
       "                                                                        \
         number      : /-?[0-9]+/ ;                                             \
         string      : /\"[a-z]+\"/;                                            \
-        operator    : '+' | '-' | '*' | '/';                                   \
+        operator    : '+' | '-' | '*' | '/' | '%';                             \
         expr        : <string> | <number> | '(' <operator> <expr>+ ')';        \
         cisp        : /^/ <operator> <expr>+ /$/ ;                             \
       ",
