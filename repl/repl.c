@@ -37,11 +37,23 @@ int number_of_nodes(mpc_ast_t* ast) {
   }
 }
 
+int max(int x, int y) {
+  return (x < y) ? y : x;
+}
+
+int min(int x, int y) {
+  return (x > y) ? y : x;
+}
+
 long eval_op(long x, char* operator, long y) {
   if (strcmp(operator, "+") == 0) { return x + y; }
   if (strcmp(operator, "-") == 0) { return x - y; }
   if (strcmp(operator, "*") == 0) { return x * y; }
   if (strcmp(operator, "/") == 0) { return x / y; }
+  if (strcmp(operator, "%") == 0) { return x % y; }
+  if (strcmp(operator, "^") == 0) { return pow(x, y); }
+  if (strcmp(operator, "min") == 0) { return min(x, y); }
+  if (strcmp(operator, "max") == 0) { return max(x, y); }
   return 0;
 }
 
@@ -71,10 +83,10 @@ int main(int argc, char** argv) {
 
   mpca_lang(MPCA_LANG_DEFAULT,
       "                                                                                    \
-        number      : /-?[0-9]+/ ;                                                          \
-        operator    : '+' | '-' | '*' | '/' ;                                               \
-        expr        : <number> | '(' <operator> <expr>+ ')' ;        \
-        cisp        : /^/ <operator> <expr>+ /$/ ;                                          \
+        number      : /-?[0-9]+/ ;                                                         \
+        operator    : '+' | '-' | '*' | '/' | '%' | '^' | /min/ | /max/ ;                  \
+        expr        : <number> | '(' <operator> <expr>+ ')' ;                              \
+        cisp        : /^/ <operator> <expr>+ /$/ ;                                         \
       ",
       Number, Operator, Expr, Cisp);
 
